@@ -16,6 +16,8 @@
 #include "es8311.h"
 #include "esp_log.h"
 
+#include "tca9554.h"
+
 static const char *TAG = "codec";
 
 typedef struct {
@@ -35,11 +37,30 @@ static esp_err_t es7243_init_default(void);
 static esp_err_t es8156_init_default(void);
 static esp_err_t es8311_init_default(void);
 
+#define TOUCH_BL_LED     46
+static esp_err_t tca9554_init_default(void)
+{
+    esp_err_t ret_val = ESP_OK;
+    tca9554_init(0x0,0x4F);
+    tca9554_set_level(EXPANDER_IO_SD_CTRL, 0);
+    tca9554_set_level(EXPANDER_IO_AUDIO_CTRL, 0);
+    tca9554_set_level(EXPANDER_IO_PA_CTRL, 1);
+    tca9554_set_level(EXPANDER_IO_BAT_LED, 1);
+    gpio_config_t led_conf = {
+        .mode = GPIO_MODE_OUTPUT,
+        .pin_bit_mask =  BIT64(TOUCH_BL_LED)
+    };
+    gpio_config (&led_conf);
+    gpio_set_level(TOUCH_BL_LED, 1);
+    return ret_val;
+}
+
 static codec_desc_t codec_dev_list[] = {
     {CODEC_DEV_ES7210, 0x40, "ES7210", es7210_init_default },
     {CODEC_DEV_ES7243, 0x08, "ES7243", es7243_init_default },
     {CODEC_DEV_ES8156, 0x10, "ES8156", es8156_init_default },
     {CODEC_DEV_ES8311, 0x18, "ES8311", es8311_init_default },
+    {CHIPS_IO_TCA9554, 0x38, "TCA9554", tca9554_init_default },
     // { 0x20, "ES8388", es8388_init_default }, /* Currently not supported */
 };
 
@@ -64,7 +85,7 @@ static esp_err_t es7210_init_default(void)
     ret_val |= es7210_adc_ctrl_state(cfg.codec_mode, AUDIO_HAL_CTRL_START);
 
     if (ESP_OK != ret_val) {
-        ESP_LOGE(TAG, "Failed initialize codec");
+        ESP_LOGE(TAG, "Failed initialize codec x%x",ret_val);
     }
 
     return ret_val;
@@ -104,13 +125,13 @@ static esp_err_t es8311_init_default(void)
 {
     esp_err_t ret_val = ESP_OK;
     audio_hal_codec_config_t cfg = {
-        .codec_mode = AUDIO_HAL_CODEC_MODE_DECODE,
+        .codec_mode = AUDIO_HAL_CODEC_MODE_BOTH,
         .dac_output = AUDIO_HAL_DAC_OUTPUT_LINE1,
         .i2s_iface = {
             .bits = AUDIO_HAL_BIT_LENGTH_16BITS,
             .fmt = AUDIO_HAL_I2S_NORMAL,
             .mode = AUDIO_HAL_MODE_SLAVE,
-            .samples = AUDIO_HAL_16K_SAMPLES,
+            .samples = AUDIO_HAL_48K_SAMPLES,
         },
     };
 
@@ -149,7 +170,6 @@ esp_err_t bsp_codec_detect(uint32_t *devices)
 esp_err_t bsp_codec_init(audio_hal_iface_samples_t sample_rate)
 {
     esp_err_t ret_val = ESP_OK;
-
     ret_val = bsp_codec_detect(&s_codec_detect_flag);
     if (ESP_OK == ret_val) {
         for (size_t i = 0; i < sizeof(codec_dev_list) / sizeof(codec_dev_list[0]); i++) {

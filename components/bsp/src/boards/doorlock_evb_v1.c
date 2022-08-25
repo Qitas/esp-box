@@ -5,7 +5,7 @@
 #include "bsp_codec.h"
 #include "button.h"
 #include "bsp_btn.h"
-
+#include "bsp_storage.h"
 #include "tca9554.h"
 
 static const char *TAG = "doorlock";
@@ -130,10 +130,11 @@ esp_err_t bsp_board_doorlock_init(void)
     // ESP_ERROR_CHECK(gpio_config(&io_conf_key));
     // gpio_install_isr_service(0);
     // ESP_ERROR_CHECK(gpio_isr_handler_add(g_board_s3_box_res.GPIO_MUTE_NUM, mute_btn_handler, NULL));
-
+    ESP_LOGI(TAG, "doorlock init");
     ESP_ERROR_CHECK(tca9554_init(0x0,0x4F));
     ESP_ERROR_CHECK(bsp_btn_init_default());
-    // ESP_ERROR_CHECK(bsp_sdcard_init_default());
+    ESP_ERROR_CHECK(bsp_sdcard_init_default());
+    ESP_LOGI(TAG, "bsp_i2s_init");
     ESP_ERROR_CHECK(bsp_i2s_init(I2S_NUM_0, 16000));
     ESP_ERROR_CHECK(bsp_codec_init(AUDIO_HAL_16K_SAMPLES));
     // tca9554_set_level(EXPANDER_IO_AUDIO_CTRL, 0);
@@ -144,6 +145,7 @@ esp_err_t bsp_board_doorlock_init(void)
         .pin_bit_mask =  BIT64(TOUCH_BL_LED)
     };
     gpio_config (&led_conf);
+     gpio_set_level(TOUCH_BL_LED, 1);
     return ESP_OK;
 }
 

@@ -33,27 +33,28 @@ static esp_err_t bsp_board_detect()
         bsp_i2c_init(I2C_NUM_0, 400 * 1000, brd->GPIO_I2C_SCL, brd->GPIO_I2C_SDA);
         uint32_t codecs = 0;
         bsp_codec_detect(&codecs);
-        if ((CODEC_DEV_ES7210 | CODEC_DEV_ES8311) == codecs) {
-            ret = bsp_i2c_probe_addr(TCA9554_ADDR);  
-            if(ret == ESP_OK){
-                ESP_LOGI(TAG, "doorlock with tca9554");
-                g_board = (boards_info_t *)&g_boards_info[BOARD_S3_DOORLOCK];
-            }
-            else {
-                g_board = (boards_info_t *)&g_boards_info[BOARD_S3_BOX];
-            }
-            ESP_LOGI(TAG, "tca9554 status x%x",ret);
+        // ESP_LOGI(TAG, "bsp_codec_detect x%x",codecs);
+        if ((CHIPS_IO_TCA9554 | CODEC_DEV_ES8311)  == codecs) {
+            g_board = (boards_info_t *)&g_boards_info[BOARD_S3_DOORLOCK];         
+            // 
+            ESP_LOGI(TAG, "Detected board [%s]", g_board->name);
+            break;
+        }
+        else if ((CODEC_DEV_ES7210 | CODEC_DEV_ES8311) == codecs) {
+            g_board = (boards_info_t *)&g_boards_info[BOARD_S3_BOX];
+            ESP_LOGI(TAG, "Detected board [%s]", g_board->name);
+            break;
         } else if ((CODEC_DEV_ES7243 | CODEC_DEV_ES8156) == codecs) {
             g_board = (boards_info_t *)&g_boards_info[BOARD_S3_BOX_LITE];
+            ESP_LOGI(TAG, "Detected board [%s]", g_board->name);
+            break;
         } else {
-            ESP_LOGE(TAG, "Can't Detect a correct board");
+            ESP_LOGE(TAG, "Can't Detect a correct board x%x" ,codecs);
             bsp_i2c_deinit();
             ret = ESP_ERR_NOT_FOUND;
         }
-        if (g_board) {
-            ESP_LOGI(TAG, "Detected board: [%s]", g_board->name);
-            break;
-        }
+        // if (g_board) {
+        // }
     }
     return ret;
 }

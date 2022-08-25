@@ -18,6 +18,7 @@ typedef enum {
     CODEC_DEV_ES7243 = 0x02,
     CODEC_DEV_ES8156 = 0x04,
     CODEC_DEV_ES8311 = 0x08,
+    CHIPS_IO_TCA9554 = 0x10,
     // CODEC_DEV_ES8388,
 } codec_dev_t;
 
