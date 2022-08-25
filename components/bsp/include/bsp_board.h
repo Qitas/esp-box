@@ -22,6 +22,7 @@ extern "C" {
 typedef enum {
     BOARD_S3_BOX,
     BOARD_S3_BOX_LITE,
+    BOARD_S3_DOORLOCK,
 } boards_id_t;
 
 typedef enum {
@@ -185,6 +186,10 @@ typedef struct {
  */
 typedef enum {
     POWER_MODULE_LCD = 1,       /*!< LCD power control */
+    POWER_MODULE_UVC ,          /*!< UVC power control */
+    POWER_MODULE_LED ,          /*!< LED power control */
+    POWER_MODULE_BL ,           /*!< 背光控制及系统关联控制 */
+    POWER_MODULE_SD ,           /*!< SD power control */
     POWER_MODULE_AUDIO,         /*!< Audio PA power control */
     POWER_MODULE_ALL = 0xff,    /*!< All module power control */
 } power_module_t;

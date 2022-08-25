@@ -12,12 +12,15 @@
 #include "bsp_codec.h"
 #include "esp32_s3_box.h"
 #include "esp32_s3_box_lite.h"
+#include "doorlock_evb_v1.h"
+#include "tca9554.h"
 
 static const char *TAG = "bsp boards";
 
 static const boards_info_t g_boards_info[] = {
     {BOARD_S3_BOX,      "S3_BOX",      bsp_board_s3_box_init,      bsp_board_s3_box_power_ctrl, bsp_board_s3_box_get_res_desc},
     {BOARD_S3_BOX_LITE, "S3_BOX_LITE", bsp_board_s3_box_lite_init, bsp_board_s3_box_lite_power_ctrl, bsp_board_s3_box_lite_get_res_desc},
+    {BOARD_S3_DOORLOCK, "S3_DOORLOCK", bsp_board_doorlock_init, bsp_board_doorlock_power_ctrl, bsp_board_doorlock_get_res_desc},
 };
 static boards_info_t *g_board = NULL;
 
@@ -30,9 +33,16 @@ static esp_err_t bsp_board_detect()
         bsp_i2c_init(I2C_NUM_0, 400 * 1000, brd->GPIO_I2C_SCL, brd->GPIO_I2C_SDA);
         uint32_t codecs = 0;
         bsp_codec_detect(&codecs);
-
         if ((CODEC_DEV_ES7210 | CODEC_DEV_ES8311) == codecs) {
-            g_board = (boards_info_t *)&g_boards_info[BOARD_S3_BOX];
+            ret = bsp_i2c_probe_addr(TCA9554_ADDR);  
+            if(ret == ESP_OK){
+                ESP_LOGI(TAG, "doorlock with tca9554");
+                g_board = (boards_info_t *)&g_boards_info[BOARD_S3_DOORLOCK];
+            }
+            else {
+                g_board = (boards_info_t *)&g_boards_info[BOARD_S3_BOX];
+            }
+            ESP_LOGI(TAG, "tca9554 status x%x",ret);
         } else if ((CODEC_DEV_ES7243 | CODEC_DEV_ES8156) == codecs) {
             g_board = (boards_info_t *)&g_boards_info[BOARD_S3_BOX_LITE];
         } else {
