@@ -8,7 +8,7 @@
 #include "bsp_storage.h"
 #include "tca9554.h"
 
-static const char *TAG = "doorlock";
+// static const char *TAG = "doorlock";
 
 #define BOARD_SI522A_ADDR       0x29        // 0x2f //  0x28
 #define BOARD_ES8311_ADDR       0x18
@@ -74,11 +74,6 @@ static const board_res_desc_t g_board_lock_res =
     .GPIO_SDMMC_D3 =   (GPIO_NUM_NC),
     .GPIO_SDMMC_DET =  (GPIO_NUM_NC),
 
-    // .FUNC_RMT_EN =         (0),
-    // .GPIO_RMT_IR =         (GPIO_NUM_NC),
-    // .GPIO_RMT_LED =        (GPIO_NUM_48),
-    // .RMT_LED_NUM  =        1,
-
     .FUNC_I2S_EN =         (1),
     .GPIO_I2S_LRCK =       (GPIO_NUM_39),
     .GPIO_I2S_MCLK =       (GPIO_NUM_1),
@@ -130,16 +125,18 @@ esp_err_t bsp_board_doorlock_init(void)
     // ESP_ERROR_CHECK(gpio_config(&io_conf_key));
     // gpio_install_isr_service(0);
     // ESP_ERROR_CHECK(gpio_isr_handler_add(g_board_s3_box_res.GPIO_MUTE_NUM, mute_btn_handler, NULL));
-    ESP_LOGI(TAG, "doorlock init");
+    // ESP_LOGI(TAG, "doorlock init");
     ESP_ERROR_CHECK(tca9554_init(0x0,0x4F));
     ESP_ERROR_CHECK(bsp_btn_init_default());
+    tca9554_set_level(EXPANDER_IO_SD_CTRL, 0);
+    tca9554_set_level(EXPANDER_IO_BAT_LED, 1);
     ESP_ERROR_CHECK(bsp_sdcard_init_default());
-    ESP_LOGI(TAG, "bsp_i2s_init");
-    ESP_ERROR_CHECK(bsp_i2s_init(I2S_NUM_0, 16000));
-    ESP_ERROR_CHECK(bsp_codec_init(AUDIO_HAL_16K_SAMPLES));
-    // tca9554_set_level(EXPANDER_IO_AUDIO_CTRL, 0);
+    // ESP_LOGI(TAG, "bsp_i2s_init");
+    // ESP_ERROR_CHECK(bsp_i2s_init(I2S_NUM_0, 16000));
+    // ESP_ERROR_CHECK(bsp_codec_init(AUDIO_HAL_16K_SAMPLES));
+    tca9554_set_level(EXPANDER_IO_AUDIO_CTRL, 0);
     // vTaskDelay(pdMS_TO_TICKS(10));
-    // tca9554_set_level(EXPANDER_IO_PA_CTRL, 1);
+    tca9554_set_level(EXPANDER_IO_PA_CTRL, 1);
     gpio_config_t led_conf = {
         .mode = GPIO_MODE_OUTPUT,
         .pin_bit_mask =  BIT64(TOUCH_BL_LED)

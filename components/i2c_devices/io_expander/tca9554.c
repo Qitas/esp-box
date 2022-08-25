@@ -42,7 +42,7 @@ esp_err_t tca9554_init(uint8_t direct,uint8_t level)
     outlevel_reg = level;
     ret |= tca9554_write_byte(TCA9554_DIRECTION_REG, direction_reg);
     ret |= tca9554_write_byte(TCA9554_OUTPUT_STATUS_REG, outlevel_reg);
-    ESP_LOGW(TAG, "0x%02x 0x%02x",direction_reg,outlevel_reg);
+    // ESP_LOGW(TAG, "0x%02x 0x%02x",direction_reg,outlevel_reg);
     return ESP_OK == ret ? ESP_OK : ESP_FAIL;
 }
 /*******************************************************************************

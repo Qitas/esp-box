@@ -36,23 +36,26 @@ static esp_err_t bsp_board_detect()
         // ESP_LOGI(TAG, "bsp_codec_detect x%x",codecs);
         if ((CHIPS_IO_TCA9554 | CODEC_DEV_ES8311)  == codecs) {
             g_board = (boards_info_t *)&g_boards_info[BOARD_S3_DOORLOCK];         
-            // 
             ESP_LOGI(TAG, "Detected board [%s]", g_board->name);
+            ret = ESP_OK;
             break;
         }
         else if ((CODEC_DEV_ES7210 | CODEC_DEV_ES8311) == codecs) {
             g_board = (boards_info_t *)&g_boards_info[BOARD_S3_BOX];
             ESP_LOGI(TAG, "Detected board [%s]", g_board->name);
+            ret = ESP_OK;
             break;
         } else if ((CODEC_DEV_ES7243 | CODEC_DEV_ES8156) == codecs) {
             g_board = (boards_info_t *)&g_boards_info[BOARD_S3_BOX_LITE];
             ESP_LOGI(TAG, "Detected board [%s]", g_board->name);
+            ret = ESP_OK;
             break;
         } else {
             ESP_LOGE(TAG, "Can't Detect a correct board x%x" ,codecs);
             bsp_i2c_deinit();
             ret = ESP_ERR_NOT_FOUND;
         }
+        // ESP_LOGE(TAG, "Detect ret x%x" ,ret);
         // if (g_board) {
         // }
     }
@@ -72,6 +75,7 @@ const board_res_desc_t *bsp_board_get_description(void)
 esp_err_t bsp_board_init(void)
 {
     if (ESP_OK == bsp_board_detect()) {
+        ESP_LOGI(TAG, "Init board [%s]", g_board->name);
         return g_board->board_init();
     }
     return ESP_FAIL;

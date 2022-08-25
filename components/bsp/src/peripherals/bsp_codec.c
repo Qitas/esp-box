@@ -41,17 +41,16 @@ static esp_err_t es8311_init_default(void);
 static esp_err_t tca9554_init_default(void)
 {
     esp_err_t ret_val = ESP_OK;
-    tca9554_init(0x0,0x4F);
-    tca9554_set_level(EXPANDER_IO_SD_CTRL, 0);
-    tca9554_set_level(EXPANDER_IO_AUDIO_CTRL, 0);
-    tca9554_set_level(EXPANDER_IO_PA_CTRL, 1);
-    tca9554_set_level(EXPANDER_IO_BAT_LED, 1);
-    gpio_config_t led_conf = {
-        .mode = GPIO_MODE_OUTPUT,
-        .pin_bit_mask =  BIT64(TOUCH_BL_LED)
-    };
-    gpio_config (&led_conf);
-    gpio_set_level(TOUCH_BL_LED, 1);
+    // tca9554_init(0x0,0x4F);
+    // tca9554_set_level(EXPANDER_IO_AUDIO_CTRL, 0);
+    // tca9554_set_level(EXPANDER_IO_PA_CTRL, 1);
+    // tca9554_set_level(EXPANDER_IO_BAT_LED, 1);
+    // gpio_config_t led_conf = {
+    //     .mode = GPIO_MODE_OUTPUT,
+    //     .pin_bit_mask =  BIT64(TOUCH_BL_LED)
+    // };
+    // gpio_config (&led_conf);
+    // gpio_set_level(TOUCH_BL_LED, 1);
     return ret_val;
 }
 
@@ -138,7 +137,7 @@ static esp_err_t es8311_init_default(void)
     ret_val |= es8311_codec_init(&cfg);
     ret_val |= es8311_set_bits_per_sample(cfg.i2s_iface.bits);
     ret_val |= es8311_config_fmt(cfg.i2s_iface.fmt);
-    ret_val |= es8311_codec_set_voice_volume(75);
+    ret_val |= es8311_codec_set_voice_volume(85);
     ret_val |= es8311_codec_ctrl_state(cfg.codec_mode, AUDIO_HAL_CTRL_START);
 
     if (ESP_OK != ret_val) {
